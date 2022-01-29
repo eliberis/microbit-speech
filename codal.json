@@ -1,0 +1,20 @@
+{
+    "target": {
+        "name": "codal-microbit-v2",
+        "url": "https://github.com/lancaster-university/codal-microbit-v2",
+        "branch": "master",
+        "type": "git",
+        "test_ignore": true,
+        "dev": true
+    } ,
+    "config":{
+        "NO_BLE": 1,
+        "CODAL_DEBUG": 0,
+        "CMSIS_NN": 1,
+        "CODAL_LOW_LEVEL_VALIDATION": 0,
+        "DEVICE_STACK_SIZE": 2048,
+        "DMESG_SERIAL_DEBUG": 0,
+        "MICROBIT_BLE_ENABLED" : 0,
+        "MICROBIT_BLE_PAIRING_MODE": 0
+    }
+}

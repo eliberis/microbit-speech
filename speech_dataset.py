@@ -339,7 +339,9 @@ class AudioProcessor(object):
                 sample_rate=sample_rate,	
                 window_size=window_size_ms,	
                 window_step=window_step_ms,	
-                num_channels=num_channels,	
+                num_channels=num_channels,
+                upper_band_limit=settings['upper_band_limit'],
+                lower_band_limit=settings['lower_band_limit'],	
                 out_scale=1,	
                 out_type=tf.float32)	
             x = tf.multiply(micro_frontend, (10.0 / 256.0))
@@ -371,8 +373,8 @@ class AudioProcessor(object):
                 window_step=window_step_ms,
                 num_channels=num_channels,
                 out_scale=1,
-                upper_band_limit=4000.0,
-                lower_band_limit=20.0,
+                upper_band_limit=settings['upper_band_limit'],
+                lower_band_limit=settings['lower_band_limit'],
                 out_type=tf.float32)
         spectrogram = tf.multiply(micro_frontend, (10.0 / 256.0))
         return tf.expand_dims(spectrogram, axis=-1)
@@ -391,18 +393,22 @@ class SpeechDataset:
                  validation_percentage=10,
                  testing_percentage=10,
                  window_size_ms=40.0,
-                 window_stride=20.0):
+                 window_stride=20.0,
+                 upper_band_limit=6000.0,
+                 lower_band_limit=125.0):
         wanted_words = words if words is not None else ["yes", "no"]
         self.prepared_words_list = prepare_words_list(wanted_words)
         self.model_settings = \
             self._prepare_model_settings(len(self.prepared_words_list), sample_rate, clip_duration_ms,
-                                         window_size_ms, window_stride, feature_bin_count)
+                                         window_size_ms, window_stride, feature_bin_count, 
+                                         upper_band_limit, lower_band_limit)
 
         self.audio_processor = AudioProcessor(data_url, data_dir, silence_percentage, unknown_percentage, wanted_words,
                                               validation_percentage, testing_percentage, self.model_settings)
 
     def _prepare_model_settings(self, label_count, sample_rate, clip_duration_ms,
-                                window_size_ms, window_stride_ms, feature_bin_count):
+                                window_size_ms, window_stride_ms, feature_bin_count,
+                                upper_band_limit, lower_band_limit):
         desired_samples = int(sample_rate * clip_duration_ms / 1000)
         window_size_samples = int(sample_rate * window_size_ms / 1000)
         window_stride_samples = int(sample_rate * window_stride_ms / 1000)
@@ -426,6 +432,8 @@ class SpeechDataset:
             'label_count': label_count,
             'sample_rate': sample_rate,
             'average_window_width': average_window_width,
+            'upper_band_limit': upper_band_limit,
+            'lower_band_limit': lower_band_limit,
         }
 
     def training_dataset(self, time_shift_ms=100.0, background_frequency=0.8, background_volume=0.1):

@@ -7,6 +7,7 @@ RUN apt-get update -qq && \
     apt-get install -y --no-install-recommends \
       git make cmake python3 \
       gcc-arm-none-eabi libstdc++-arm-none-eabi-newlib && \
+    apt-get install -y --reinstall ca-certificates && \
     apt-get autoremove -y && \
     apt-get clean -y && \
     rm -rf /var/lib/apt/lists/*
